@@ -1,0 +1,26 @@
+.tile-properties {
+    text-align: right;
+    border-left: 3px dashed rgb(128, 16, 16);
+    flex: 1;
+
+    table {
+        width: 100%;
+    }
+
+    td {
+        color: whitesmoke;
+        font-size: xx-small;
+        border-bottom: 3px dashed rgb(128, 16, 16);
+    }
+
+    .tile-prop-label {
+        text-align: left;
+        padding-right: 5px;
+    }
+
+    .tile-prop-value {
+        text-align: left;
+        padding-left: 5px;
+    }
+
+}

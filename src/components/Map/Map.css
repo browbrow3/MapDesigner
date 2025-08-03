@@ -1,0 +1,6 @@
+.Map {
+    .ChunkRow {
+        display: flex;
+        flex: 1;
+    }
+}

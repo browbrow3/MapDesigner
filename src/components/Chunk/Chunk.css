@@ -1,0 +1,11 @@
+.Chunk {
+    flex: 1;
+    .TileRow {
+        display: flex;
+        flex: 1;
+
+        .Tile {
+            flex: 1;
+        }
+    }
+}
