@@ -1,19 +1,23 @@
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import TilePicker from './components/TilePicker/TilePicker';
 import ResolutionSelector from './components/ResolutionSelector/ResolutionSelector';
-import Map from './components/Map/Map';
+import Map, { validateMap } from './components/Map/Map';
 import MapExporter from './components/MapExporter/MapExporter';
 import Checkbox from './components/Checkbox/Checkbox';
 
 function App() {
   const [showTileGrid, setShowTileGrid] = useState(false);
+  const [showFocusTile, setShowFocusTile] = useState(false);
   const [showChunkGrid, setShowChunkGrid] = useState(false);
+  const [enableKeyboardControl, setEnableKeyboardControl] = useState(false);
   const [tileResolution, setTileResolution] = useState(8);
   const [tileDefinitions, setTileDefinitions] = useState([]);
   const [entityDefinitions, setEntityDefinitions] = useState([]);
   const [selectedTile, setSelectedTile] = useState(null);
   const [map, setMap] = useState(null);
+
+  const mapRef = useRef(null);
 
   const clearSelectedTile = () => {
     setSelectedTile(null);
@@ -46,8 +50,13 @@ function App() {
     fetch ('http://localhost:3000/resources/map/map.json')
       .then((result) => result.json())
       .then((mapDefinition) => {
-        setMap(mapDefinition);
-        console.log("loaded map definitions: ", mapDefinition);
+        if(validateMap(mapDefinition)) {
+          setMap(mapDefinition);
+          console.log("loaded map definitions: ", mapDefinition);
+        }
+        else {
+          console.log("loaded map definitions not valid", mapDefinition);
+        }
       })
     },[]
   );
@@ -57,7 +66,7 @@ function App() {
       <div class="header">
       </div>
       <div class="main">
-        <div class="menu">
+        <div class="menu" tabIndex={0}>
           <div class="logo">
             <img alt="Map Designer Logo" src="devil-icon.png" />
           </div>
@@ -69,15 +78,40 @@ function App() {
           <div class="grid-settings">
             <h3>Grid Settings</h3>
             <Checkbox title="Tile" state={showTileGrid} setState={setShowTileGrid} />
+            <Checkbox title="Focus" state={showFocusTile} setState={setShowFocusTile} />
             <Checkbox title="Chunk" state={showChunkGrid} setState={setShowChunkGrid} />
+          </div>
+          <div class="features">
+            <h3>Features</h3>
+            <Checkbox title="Keyboard Control" state={enableKeyboardControl} setState={setEnableKeyboardControl} />            
           </div>
           <ResolutionSelector setResolution={setTileResolution} resolutions={[8, 16, 32]} />
           <MapExporter map={map} />
         </div>
         <div class="canvas">
-          <Map map={map} setMap={setMap} tileDefinitions={tileDefinitions} entityDefinitions={entityDefinitions} tileSize={tileResolution} showTileGrid={showTileGrid} showChunkGrid={showChunkGrid} selectedTile={selectedTile} />
+          <Map 
+            tabIndex={1} 
+            map={map} 
+            setMap={setMap} 
+            tileDefinitions={tileDefinitions} 
+            entityDefinitions={entityDefinitions} 
+            tileSize={tileResolution} 
+            showTileGrid={showTileGrid} 
+            showFocusTile={showFocusTile} 
+            showChunkGrid={showChunkGrid} 
+            selectedTile={selectedTile} 
+            features={{ enableKeyboardControl: enableKeyboardControl }} 
+            mapRef={mapRef} 
+            ref={mapRef} 
+          />
         </div>
-        <TilePicker definitions={tileDefinitions} size={tileResolution} setSelectedTile={setSelectedTile} selectedTile={selectedTile} />
+        <TilePicker 
+          tabIndex={2} 
+          definitions={tileDefinitions} 
+          size={tileResolution} 
+          setSelectedTile={setSelectedTile} 
+          selectedTile={selectedTile} 
+        />
       </div>
     </div>
   );

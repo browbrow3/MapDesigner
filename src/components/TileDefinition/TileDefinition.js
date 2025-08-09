@@ -14,7 +14,7 @@ const TileDefinition = (props) => {
     }
 
     return (
-        <div id={`tile-definition-${props.definition.type}`} class={props.selectedTile === props.definition.type ? "tile-definition-selected" : "tile-definition"} onClick={handleClick}>
+        <div id={`tile-definition-${props.definition.type}`} class={props.selectedTile === props.definition.type ? "tile-definition-selected" : "tile-definition"} key={props.definition.type} onClick={handleClick}>
             <Tile definition={props.definition} size={props.size} />
             <TileProperties definition={props.definition} />
         </div>
