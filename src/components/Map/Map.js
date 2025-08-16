@@ -21,22 +21,22 @@ export const validateMap = (map) => {
 }
 
 const Map = (props) => {
-    console.log(`Map props: `);
-    console.table(props);
+    // console.log(`Map props: `);
+    // console.table(props);
     const [focusTile, setFocusTile] = useState({x: 0, y: 0});
     
     useEffect(() => {
-        console.log("map useEffect update focus");
+        // console.log("map useEffect update focus");
         if (props.mapRef.current !== null) {
             props.mapRef.current.focus();
         }
     },[props.mapRef, props.features.enableKeyboardControl])
     
     const updateMapTile = (x, y, newType) => {
-        console.log(`Map::updateMapTile: x = ${x}, y = ${y}, newType = ${newType}`);
+        // console.log(`Map::updateMapTile: x = ${x}, y = ${y}, newType = ${newType}`);
         const position = convertGlobalToMapPosition(x, y);
         let newMap = [...props.map];
-        console.log(`Map::updateMapTile: position: `, position);
+        // console.log(`Map::updateMapTile: position: `, position);
         newMap[position.chunkY][position.chunkX].tiles[position.tileY][position.tileX] = newType;
         props.setMap(newMap);
     }
@@ -78,26 +78,34 @@ const Map = (props) => {
 
     const handleKeyDown = (event) => {
         if (props.features.enableKeyboardControl) {
+            // console.log(event.key);
             switch (event.key) {
                 case "ArrowDown":
-                    console.log("Arrow Down Pressed in Map");
+                    // console.log("Arrow Down Pressed in Map");
                     setFocusTile({x: focusTile.x, y: focusTile.y < getMapHeightInTiles() - 1 ? focusTile.y + 1 : getMapHeightInTiles() });
+                    event.preventDefault();
                     break;
                 case "ArrowUp":
-                    console.log("Arrow Up Pressed in Map");
+                    // console.log("Arrow Up Pressed in Map");
                     setFocusTile({x: focusTile.x, y: focusTile.y > 0 ? focusTile.y - 1 : 0 });
+                    event.preventDefault();
                     break;
                 case "ArrowLeft":
-                    console.log("Arrow Left Pressed in Map");
+                    // console.log("Arrow Left Pressed in Map");
                     setFocusTile({x: focusTile.x > 0 ? focusTile.x - 1 : 0, y: focusTile.y });
                     break;
                 case "ArrowRight":
-                    console.log("Arrow Right Pressed in Map");
+                    // console.log("Arrow Right Pressed in Map");
                     setFocusTile({x: focusTile.x < getMapWidthInTiles() - 1 ? focusTile.x + 1 : getMapWidthInTiles(), y: focusTile.y });
                     break;
                 case "Enter":
-                    console.log(`Enter Pressed in Map - x = ${focusTile.x}, y = ${focusTile.y}`);
+                    // console.log(`Enter Pressed in Map - x = ${focusTile.x}, y = ${focusTile.y}`);
                     updateMapTile(focusTile.x, focusTile.y , props.selectedTile)
+                    break;
+                case " ":
+                    // console.log(`Space Pressed in Map - x = ${focusTile.x}, y = ${focusTile.y}`);
+                    updateMapTile(focusTile.x, focusTile.y , props.selectedTile)
+                    event.preventDefault();
                     break;
                 default: break;
             }

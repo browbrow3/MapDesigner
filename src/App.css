@@ -55,6 +55,8 @@
   max-width: fit-content;
   flex: content;
   background-color: rgb(20, 22, 26);
+  height: 100vh;
+  overflow-y: scroll;
   
   .logo {
     aspect-ratio: 1;
@@ -67,7 +69,7 @@
     margin: 5px;
 
     img {
-      animation: App-logo-spin infinite 20s linear;
+      /* animation: App-logo-spin infinite 20s linear; */
       width: 95%;
       height: 95%;
     }
@@ -89,6 +91,8 @@
 .canvas {
   flex: 7;
   background-color: #282c34;
+  height: 100vh;
+  overflow-y: scroll;
   
   h1 {
     margin-block-start: 0em;
