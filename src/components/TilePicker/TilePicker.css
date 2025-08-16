@@ -3,4 +3,6 @@
   flex: 2;
   background-color: rgb(20, 22, 26);
   color: whitesmoke;
+  height: 100vh;
+  overflow-y: scroll;
 }
