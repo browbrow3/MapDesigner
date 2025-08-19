@@ -29,6 +29,7 @@ const Chunk = (props) => {
                             // get each tile in the row
                             tr.map((c, xIndex) => 
                                 <Tile 
+                                    appState={props.appState}
                                     definition={props.tileDefinitions.find(d => d.type === c)} 
                                     size={props.tileSize} 
                                     showTileGrid={props.showTileGrid} 
@@ -38,6 +39,8 @@ const Chunk = (props) => {
                                     updateFocusTile={props.updateFocusTile} 
                                     focusTile={props.focusTile} 
                                     selectedTile={props.selectedTile} 
+                                    selectedArea={props.selectedArea}
+                                    updateAreaSelect={props.updateAreaSelect}
                                 />
                             )
                         }

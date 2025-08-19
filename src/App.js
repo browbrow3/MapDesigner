@@ -5,6 +5,7 @@ import ResolutionSelector from './components/ResolutionSelector/ResolutionSelect
 import Map, { validateMap } from './components/Map/Map';
 import MapExporter from './components/MapExporter/MapExporter';
 import Checkbox from './components/Checkbox/Checkbox';
+import Indicator from './components/Indicator/Indicator'
 
 function App() {
   const [showTileGrid, setShowTileGrid] = useState(false);
@@ -16,6 +17,9 @@ function App() {
   const [entityDefinitions, setEntityDefinitions] = useState([]);
   const [selectedTile, setSelectedTile] = useState(null);
   const [map, setMap] = useState(null);
+  const [ctrlHeld, setCtrlHeld] = useState(false);
+  const [shiftHeld, setShiftHeld] = useState(false);
+  const [selectedArea, setSelectedArea] = useState({origin: {x: null, y: null}, point: {x: null, y: null}});
 
   const mapRef = useRef(null);
 
@@ -61,8 +65,40 @@ function App() {
     },[]
   );
 
+  const handleKeyDown = (event) => {
+    /// console.log("App::handleKeyUp - key pressed: ", event.key);
+    switch (event.key) {
+      case "Control":
+        if (!ctrlHeld)
+          setCtrlHeld(true);
+        break;
+      case "Shift":
+        if (!shiftHeld)
+          setShiftHeld(true);
+        break;
+      default:
+        break;
+    }
+  }
+  
+  const handleKeyUp = (event) => {
+    // console.log("App::handleKeyUp - key released: ", event.key);
+    switch (event.key) {
+      case "Control":
+        setCtrlHeld(false);
+        setSelectedArea({origin: {x: null, y: null}, point: {x: null, y: null}});
+        break;
+      case "Shift":
+        setShiftHeld(false);
+        setSelectedArea({origin: {x: null, y: null}, point: {x: null, y: null}});
+        break;
+      default:
+        break;
+    }
+  }
+
   return (
-    <div class="App">
+    <div class="App" onKeyDown={handleKeyDown} onKeyUp={handleKeyUp}>
       <div class="header">
       </div>
       <div class="main">
@@ -91,6 +127,8 @@ function App() {
         <div class="canvas">
           <Map 
             tabIndex={1} 
+            appState={{heldKeys: {ctrl: ctrlHeld, shift: shiftHeld}}}
+            features={{ enableKeyboardControl: enableKeyboardControl }} 
             map={map} 
             setMap={setMap} 
             tileDefinitions={tileDefinitions} 
@@ -100,7 +138,8 @@ function App() {
             showFocusTile={showFocusTile} 
             showChunkGrid={showChunkGrid} 
             selectedTile={selectedTile} 
-            features={{ enableKeyboardControl: enableKeyboardControl }} 
+            selectedArea={selectedArea}
+            setSelectedArea={setSelectedArea}
             mapRef={mapRef} 
             ref={mapRef} 
           />

@@ -4,20 +4,56 @@ import './Tile.css';
 const Tile = (props) => {
     // console.log("Tile Props:", props);
     
-    const style = {
-        outline: (
-            !props.hasOwnProperty('position')) ? 'none' : (
-                props.focusTile.x === props.position.x && 
-                props.focusTile.y === props.position.y &&
-                props.showFocusTile ? 
-                    '3px solid red' : 'none'
-            ),
-        outlineOffset: '-3px',
-        border: 
-            (!props.hasOwnProperty('position')) ? 'none' : (
-                props.showTileGrid ? '0.5px solid black' : 'none'
+    const style = {};
+
+    if (props.hasOwnProperty('position')) {
+        if (props.showTileGrid) {
+            style.border = '0.5px solid black';
+        }
+
+        if (
+            props.selectedArea?.origin?.x !== null
+            && props.selectedArea?.origin?.y !== null
+            && props.selectedArea?.point?.x !== null
+            && props.selectedArea?.point?.y !== null
+            && (
+                (
+                    props.selectedArea.origin.x <= props.selectedArea.point.x
+                    && props.selectedArea.origin.x <= props.position.x
+                    && props.selectedArea.point.x >= props.position.x
+                )
+                || (
+                    props.selectedArea.origin.x >= props.selectedArea.point.x
+                    && props.selectedArea.point.x <= props.position.x
+                    && props.selectedArea.origin.x >= props.position.x
+                )
             )
-    };
+            && (
+                (
+                props.selectedArea.origin.y <= props.selectedArea.point.y
+                && props.selectedArea.origin.y <= props.position.y
+                && props.selectedArea.point.y >= props.position.y
+                )
+                || (
+                    props.selectedArea.origin.y >= props.selectedArea.point.y
+                    && props.selectedArea.point.y <= props.position.y
+                    && props.selectedArea.origin.y >= props.position.y
+                )
+            )
+        ) {
+            style.outline = '2px solid orange';
+            style.outlineOffset = '-1px';
+        }
+
+        if (
+            props.focusTile.x === props.position.x
+            && props.focusTile.y === props.position.y
+            && props.showFocusTile
+        ) {
+            style.outline = '3px solid red';
+            style.outlineOffset = '-3px';
+        }
+    }
 
     const getId = () => 
         props.position ? `map-tile-${props.position.x}-${props.position.y}` : `tile-${props.definition.type}`;
@@ -29,6 +65,7 @@ const Tile = (props) => {
                 props.updateMapTile(props.position.x, props.position.y, props.selectedTile);
             }
             props.updateFocusTile(props.position.x, props.position.y);
+            props.updateAreaSelect(props.position);
         }
     }
 
