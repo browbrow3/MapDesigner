@@ -41,9 +41,38 @@ const Map = (props) => {
         props.setMap(newMap);
     }
 
+    const updateSelectedMapTiles = (selectedArea, newType) => {
+        // console.log(`Map::updateSelectedMapTiles: newType = ${newType}`);
+        const start = {
+            x: selectedArea.origin.x < selectedArea.point.x ? selectedArea.origin.x : selectedArea.point.x,
+            y: selectedArea.origin.y < selectedArea.point.y ? selectedArea.origin.y : selectedArea.point.y
+        }
+        const end = {
+            x: selectedArea.origin.x < selectedArea.point.x ? selectedArea.point.x : selectedArea.origin.x,
+            y: selectedArea.origin.y < selectedArea.point.y ? selectedArea.point.y : selectedArea.origin.y
+        }
+
+        for(let j = start.y; j <= end.y; j++) {
+            for (let i = start.x; i <= end.x; i++) {
+                updateMapTile(i, j, newType);
+            }
+        }
+    }
+
     const updateFocusTile = (x, y) => {
-        console.log(`Map::updateFocusTile: x = ${x}, y = ${y}`);
+        // console.log(`Map::updateFocusTile: x = ${x}, y = ${y}`);
         setFocusTile({ x: x, y: y });
+    }
+
+    const updateAreaSelect = (point) => {
+        if (props.appState.heldKeys.shift || props.appState.heldKeys.ctrl) {
+            if (props.selectedArea?.origin?.x === null || props.selectedArea?.origin?.y === null) {
+                props.setSelectedArea({origin: {x: focusTile.x, y: focusTile.y}, point: point})
+            }
+            else {
+                props.setSelectedArea({...props.selectedArea, point});
+            }
+        }
     }
 
     // converts a global position {x, y} to a position within the map {chunkX, chunkY, tileX, tileY}
@@ -78,35 +107,72 @@ const Map = (props) => {
 
     const handleKeyDown = (event) => {
         if (props.features.enableKeyboardControl) {
-            // console.log(event.key);
+            // console.log("Map::handleKeyDown - key pressed: ", event.key);
+
             switch (event.key) {
-                case "ArrowDown":
+                case "ArrowDown": {
                     // console.log("Arrow Down Pressed in Map");
-                    setFocusTile({x: focusTile.x, y: focusTile.y < getMapHeightInTiles() - 1 ? focusTile.y + 1 : getMapHeightInTiles() });
+                    const point = {x: focusTile.x, y: focusTile.y < getMapHeightInTiles() - 1 ? focusTile.y + 1 : getMapHeightInTiles() };
+                    setFocusTile(point);
+                    updateAreaSelect(point);
                     event.preventDefault();
                     break;
-                case "ArrowUp":
+                }
+                case "ArrowUp": {
                     // console.log("Arrow Up Pressed in Map");
-                    setFocusTile({x: focusTile.x, y: focusTile.y > 0 ? focusTile.y - 1 : 0 });
+                    const point = {x: focusTile.x, y: focusTile.y > 0 ? focusTile.y - 1 : 0 };
+                    setFocusTile(point);
+                    updateAreaSelect(point);
                     event.preventDefault();
                     break;
-                case "ArrowLeft":
+                }
+                case "ArrowLeft": {
                     // console.log("Arrow Left Pressed in Map");
-                    setFocusTile({x: focusTile.x > 0 ? focusTile.x - 1 : 0, y: focusTile.y });
+                    const point = {x: focusTile.x > 0 ? focusTile.x - 1 : 0, y: focusTile.y };
+                    setFocusTile(point);
+                    updateAreaSelect(point);
                     break;
-                case "ArrowRight":
+                }
+                case "ArrowRight": {
                     // console.log("Arrow Right Pressed in Map");
-                    setFocusTile({x: focusTile.x < getMapWidthInTiles() - 1 ? focusTile.x + 1 : getMapWidthInTiles(), y: focusTile.y });
+                    const point = {x: focusTile.x < getMapWidthInTiles() - 1 ? focusTile.x + 1 : getMapWidthInTiles(), y: focusTile.y };
+                    setFocusTile(point);
+                    updateAreaSelect(point);
                     break;
-                case "Enter":
+                }
+                case "Enter": {
                     // console.log(`Enter Pressed in Map - x = ${focusTile.x}, y = ${focusTile.y}`);
-                    updateMapTile(focusTile.x, focusTile.y , props.selectedTile)
+                    if (
+                        (props.appState.heldKeys.shift || props.appState.heldKeys.ctrl)
+                        && props.selectedArea?.origin?.x
+                        && props.selectedArea?.origin?.y
+                        && props.selectedArea?.point?.x
+                        && props.selectedArea?.point?.y
+                    ) {
+                        updateSelectedMapTiles(props.selectedArea, props.selectedTile);
+                    }
+                    else {
+                        updateMapTile(focusTile.x, focusTile.y , props.selectedTile);
+                    }
                     break;
-                case " ":
+                }
+                case " ": {
                     // console.log(`Space Pressed in Map - x = ${focusTile.x}, y = ${focusTile.y}`);
-                    updateMapTile(focusTile.x, focusTile.y , props.selectedTile)
+                    if (
+                        (props.appState.heldKeys.shift || props.appState.heldKeys.ctrl)
+                        && props.selectedArea?.origin?.x
+                        && props.selectedArea?.origin?.y
+                        && props.selectedArea?.point?.x
+                        && props.selectedArea?.point?.y
+                    ) {
+                        updateSelectedMapTiles(props.selectedArea, props.selectedTile);
+                    }
+                    else {
+                        updateMapTile(focusTile.x, focusTile.y , props.selectedTile);
+                    }
                     event.preventDefault();
                     break;
+                }
                 default: break;
             }
         }
@@ -124,6 +190,7 @@ const Map = (props) => {
                                     // get each chunk in the row
                                     cr.map((c, xIndex) => 
                                         <Chunk 
+                                            appState={props.appState}
                                             chunk={c} 
                                             tileDefinitions={props.tileDefinitions} 
                                             entityDefinitions={props.entityDefinitions} 
@@ -137,6 +204,8 @@ const Map = (props) => {
                                             updateFocusTile={updateFocusTile} 
                                             focusTile={focusTile} 
                                             selectedTile={props.selectedTile} 
+                                            selectedArea={props.selectedArea}
+                                            updateAreaSelect={updateAreaSelect}
                                         />
                                     )
                                 }
