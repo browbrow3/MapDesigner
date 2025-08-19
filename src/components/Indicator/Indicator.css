@@ -1,0 +1,14 @@
+.indicator {
+    display: flex;
+
+    p {
+        flex: 5;
+    }
+
+    .indicator-display {
+        aspect-ratio: 1;
+        flex: 1;
+        border-radius: 40%;
+        border: 3px solid rgb(20, 22, 26);
+    }
+}
