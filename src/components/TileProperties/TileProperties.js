@@ -1,4 +1,3 @@
-import React from 'react';
 import './TileProperties.css';
 
 const TileProperties = (props) => {

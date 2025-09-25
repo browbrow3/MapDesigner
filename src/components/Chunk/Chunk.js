@@ -27,20 +27,28 @@ const Chunk = (props) => {
                     return <div class="TileRow">
                         {
                             // get each tile in the row
-                            tr.map((c, xIndex) => 
+                            tr.map((c, xIndex) =>
                                 <Tile 
                                     appState={props.appState}
                                     definition={props.tileDefinitions.find(d => d.type === c)} 
-                                    size={props.tileSize} 
+                                    tileResolution={props.tileResolution} 
+                                    entityResolution={props.entityResolution} 
                                     showTileGrid={props.showTileGrid} 
                                     showFocusTile={props.showFocusTile} 
+                                    showEntities={props.showEntities}
                                     position={props.convertMapToGlobalPosition(props.position.x, props.position.y, xIndex, yIndex)} 
                                     updateMapTile={props.updateMapTile} 
+                                    updateChunkEntities={props.updateChunkEntities} 
                                     updateFocusTile={props.updateFocusTile} 
                                     focusTile={props.focusTile} 
                                     selectedTile={props.selectedTile} 
+                                    selectedEntity={props.selectedEntity} 
                                     selectedArea={props.selectedArea}
                                     updateAreaSelect={props.updateAreaSelect}
+                                    entity={props.showEntities ? props.chunk.entities.find(
+                                            e => e.x === xIndex && e.y === yIndex
+                                        ) : null
+                                    }
                                 />
                             )
                         }

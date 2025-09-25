@@ -25,11 +25,19 @@ if (fs.existsSync(resourceDir)) {
     fs.rmSync(resourceDir, { recursive: true });
 }
 
+
+
 // copy resources from target locations into public resources directory.
 fs.cpSync(config.tiles.graphicsPath, resourceDir + '/tiles', { recursive: true });
 fs.copyFileSync(config.tiles.defaultTilePath, resourceDir + '/tiles/default-tile.png');
 fs.copyFileSync(config.tiles.definitionsPath, resourceDir + '/tiles/tile-definitions.json');
 fs.mkdirSync(resourceDir + '/entities');
+fs.cpSync(config.entities.graphicsPath, resourceDir + '/entities', { 
+    recursive: true, 
+    filter: (source) => 
+        fs.statSync(source).isDirectory() ? true : source.match(".*\\\\[0-9]*p\\\\sprite_[-0-9]*_0_1_0.png") != null
+});
+fs.copyFileSync(config.entities.defaultSpritePath, resourceDir + '/entities/default-sprite.png');
 fs.copyFileSync(config.entities.definitionsPath, resourceDir + '/entities/entity-definitions.json');
 fs.mkdirSync(resourceDir + '/map');
 fs.copyFileSync(config.map.path, resourceDir + '/map/map.json');

@@ -21,8 +21,7 @@ export const validateMap = (map) => {
 }
 
 const Map = (props) => {
-    // console.log(`Map props: `);
-    // console.table(props);
+    // console.log('Map props:', props);
     const [focusTile, setFocusTile] = useState({x: 0, y: 0});
     
     useEffect(() => {
@@ -31,9 +30,47 @@ const Map = (props) => {
             props.mapRef.current.focus();
         }
     },[props.mapRef, props.features.enableKeyboardControl])
+
+    const updateChunkEntities = (x, y, type) => {
+        // console.log(`Map::updateChunkEntities called with arguments - x: ${x}, y: ${y}, type: ${type}`, 'Props:', props);
+
+        if (type === null) {
+            return;
+        }
+        const location = convertGlobalToMapPosition(x, y);
+        let entities = props.map[location.chunkY][location.chunkX].entities;
+
+        const entityIndex = entities.findIndex(e => e.x === location.tileX && e.y === location.tileY);
+
+        // if entity not found, push entity to end if entity set.
+        if (entityIndex === -1) {
+            if (type !== -1) {
+                entities.push({type, x: location.tileX, y: location.tileY});
+            }
+        }
+        else {
+            // if no new type is selected, remove the entity from the list.
+            if (type === -1) {
+                entities = entities.filter(e => !(e.x === location.tileX && e.y === location.tileY));
+            }
+            // otherwise update the entity in the list.
+            else {
+                entities[entityIndex] = {type, x: location.tileX, y: location.tileY};
+            }
+        }
+
+        let newMap = [...props.map];
+
+        newMap[location.chunkY][location.chunkX].entities = entities;
+
+        props.setMap(newMap);
+    }
     
     const updateMapTile = (x, y, newType) => {
-        // console.log(`Map::updateMapTile: x = ${x}, y = ${y}, newType = ${newType}`);
+        // console.log(`Map::updateMapTile: x = ${x}, y = ${y}, newType = ${newType}`, 'Props:', props);
+        if (newType === null) {
+            return;
+        }
         const position = convertGlobalToMapPosition(x, y);
         let newMap = [...props.map];
         // console.log(`Map::updateMapTile: position: `, position);
@@ -42,7 +79,10 @@ const Map = (props) => {
     }
 
     const updateSelectedMapTiles = (selectedArea, newType) => {
-        // console.log(`Map::updateSelectedMapTiles: newType = ${newType}`);
+        // console.log(`Map::updateSelectedMapTiles: newType = ${newType}`, 'Props:', props);
+        if (newType === null) {
+            return;
+        }
         const start = {
             x: selectedArea.origin.x < selectedArea.point.x ? selectedArea.origin.x : selectedArea.point.x,
             y: selectedArea.origin.y < selectedArea.point.y ? selectedArea.origin.y : selectedArea.point.y
@@ -54,7 +94,12 @@ const Map = (props) => {
 
         for(let j = start.y; j <= end.y; j++) {
             for (let i = start.x; i <= end.x; i++) {
-                updateMapTile(i, j, newType);
+                if (props.appState.mode === 'entity') {
+                    updateChunkEntities(i, j, newType);
+                }
+                else {
+                    updateMapTile(i, j, newType);
+                }
             }
         }
     }
@@ -149,10 +194,20 @@ const Map = (props) => {
                         && props.selectedArea?.point?.x
                         && props.selectedArea?.point?.y
                     ) {
-                        updateSelectedMapTiles(props.selectedArea, props.selectedTile);
+                        updateSelectedMapTiles(
+                            props.selectedArea, 
+                            props.appState.mode === 'entity' ? 
+                            props.selectedEntity : 
+                            props.selectedTile
+                        );
                     }
                     else {
-                        updateMapTile(focusTile.x, focusTile.y , props.selectedTile);
+                        if (props.appState.mode === 'entity') {
+                            updateChunkEntities(focusTile.x, focusTile.y, props.selectedEntity);
+                        }
+                        else { 
+                            updateMapTile(focusTile.x, focusTile.y, props.selectedTile);
+                        }
                     }
                     break;
                 }
@@ -165,10 +220,20 @@ const Map = (props) => {
                         && props.selectedArea?.point?.x
                         && props.selectedArea?.point?.y
                     ) {
-                        updateSelectedMapTiles(props.selectedArea, props.selectedTile);
+                        updateSelectedMapTiles(
+                            props.selectedArea, 
+                            props.appState.mode === 'entity' ? 
+                            props.selectedEntity : 
+                            props.selectedTile
+                        );
                     }
                     else {
-                        updateMapTile(focusTile.x, focusTile.y , props.selectedTile);
+                        if (props.appState.mode === 'entity') {
+                            updateChunkEntities(focusTile.x, focusTile.y, props.selectedEntity);
+                        }
+                        else { 
+                            updateMapTile(focusTile.x, focusTile.y, props.selectedTile);
+                        }
                     }
                     event.preventDefault();
                     break;
@@ -194,16 +259,20 @@ const Map = (props) => {
                                             chunk={c} 
                                             tileDefinitions={props.tileDefinitions} 
                                             entityDefinitions={props.entityDefinitions} 
-                                            tileSize={props.tileSize} 
+                                            tileResolution={props.tileResolution} 
+                                            entityResolution={props.entityResolution} 
                                             showTileGrid={props.showTileGrid} 
                                             showFocusTile={props.showFocusTile} 
                                             showChunkGrid={props.showChunkGrid} 
+                                            showEntities={props.showEntities} 
                                             position={{x: xIndex, y: yIndex}} 
                                             convertMapToGlobalPosition={convertMapToGlobalPosition} 
                                             updateMapTile={updateMapTile} 
+                                            updateChunkEntities={updateChunkEntities}
                                             updateFocusTile={updateFocusTile} 
                                             focusTile={focusTile} 
                                             selectedTile={props.selectedTile} 
+                                            selectedEntity={props.selectedEntity} 
                                             selectedArea={props.selectedArea}
                                             updateAreaSelect={updateAreaSelect}
                                         />
