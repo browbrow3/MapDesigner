@@ -61,16 +61,7 @@ const Tile = (props) => {
     const handleClick = () => {
         // console.log(`Tile props (on handle click): `, props);
         if (props.hasOwnProperty('position')) {
-            if (props.appState.mode === 'entity') {
-                if (props.selectedEntity != null || props.selectedEntity > 0) {
-                    props.updateChunkEntities(props.position.x, props.position.y, props.selectedEntity);
-                }
-            }
-            else {
-                if (props.selectedTile != null || props.selectedTile > 0) {
-                    props.updateMapTile(props.position.x, props.position.y, props.selectedTile);
-                }
-            }
+            props.updateTile(props.position.x, props.position.y);
             props.updateFocusTile(props.position.x, props.position.y);
             props.updateAreaSelect(props.position);
         }

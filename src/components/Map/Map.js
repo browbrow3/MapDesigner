@@ -31,10 +31,10 @@ const Map = (props) => {
         }
     },[props.mapRef, props.features.enableKeyboardControl])
 
-    const updateChunkEntities = (x, y, type) => {
+    const updateChunkEntities = (x, y) => {
         // console.log(`Map::updateChunkEntities called with arguments - x: ${x}, y: ${y}, type: ${type}`, 'Props:', props);
 
-        if (type === null) {
+        if (props.selectedEntity === null) {
             return;
         }
         const location = convertGlobalToMapPosition(x, y);
@@ -44,18 +44,18 @@ const Map = (props) => {
 
         // if entity not found, push entity to end if entity set.
         if (entityIndex === -1) {
-            if (type !== -1) {
-                entities.push({type, x: location.tileX, y: location.tileY});
+            if (props.selectedEntity !== -1) {
+                entities.push({type: props.selectedEntity, x: location.tileX, y: location.tileY});
             }
         }
         else {
             // if no new type is selected, remove the entity from the list.
-            if (type === -1) {
+            if (props.selectedEntity === -1) {
                 entities = entities.filter(e => !(e.x === location.tileX && e.y === location.tileY));
             }
             // otherwise update the entity in the list.
             else {
-                entities[entityIndex] = {type, x: location.tileX, y: location.tileY};
+                entities[entityIndex] = {type: props.selectedEntity, x: location.tileX, y: location.tileY};
             }
         }
 
@@ -66,23 +66,29 @@ const Map = (props) => {
         props.setMap(newMap);
     }
     
-    const updateMapTile = (x, y, newType) => {
+    const updateMapTile = (x, y) => {
         // console.log(`Map::updateMapTile: x = ${x}, y = ${y}, newType = ${newType}`, 'Props:', props);
-        if (newType === null) {
+        if (props.selectedTile === null) {
             return;
         }
         const position = convertGlobalToMapPosition(x, y);
         let newMap = [...props.map];
         // console.log(`Map::updateMapTile: position: `, position);
-        newMap[position.chunkY][position.chunkX].tiles[position.tileY][position.tileX] = newType;
+        newMap[position.chunkY][position.chunkX].tiles[position.tileY][position.tileX] = props.selectedEntity;
         props.setMap(newMap);
     }
 
-    const updateSelectedMapTiles = (selectedArea, newType) => {
-        // console.log(`Map::updateSelectedMapTiles: newType = ${newType}`, 'Props:', props);
-        if (newType === null) {
-            return;
+    const updateTile = (x, y) => {
+        if (props.appState.mode === 'entity') {
+            updateChunkEntities(x, y, props.selectedEntity);
         }
+        else {
+            updateMapTile(x, y);
+        }
+    }
+
+    const updateSelectedMapTiles = (selectedArea) => {
+        // console.log(`Map::updateSelectedMapTiles: newType = ${newType}`, 'Props:', props);
         const start = {
             x: selectedArea.origin.x < selectedArea.point.x ? selectedArea.origin.x : selectedArea.point.x,
             y: selectedArea.origin.y < selectedArea.point.y ? selectedArea.origin.y : selectedArea.point.y
@@ -94,12 +100,7 @@ const Map = (props) => {
 
         for(let j = start.y; j <= end.y; j++) {
             for (let i = start.x; i <= end.x; i++) {
-                if (props.appState.mode === 'entity') {
-                    updateChunkEntities(i, j, newType);
-                }
-                else {
-                    updateMapTile(i, j, newType);
-                }
+                updateTile(i, j);
             }
         }
     }
@@ -194,20 +195,10 @@ const Map = (props) => {
                         && props.selectedArea?.point?.x
                         && props.selectedArea?.point?.y
                     ) {
-                        updateSelectedMapTiles(
-                            props.selectedArea, 
-                            props.appState.mode === 'entity' ? 
-                            props.selectedEntity : 
-                            props.selectedTile
-                        );
+                        updateSelectedMapTiles(props.selectedArea);
                     }
                     else {
-                        if (props.appState.mode === 'entity') {
-                            updateChunkEntities(focusTile.x, focusTile.y, props.selectedEntity);
-                        }
-                        else { 
-                            updateMapTile(focusTile.x, focusTile.y, props.selectedTile);
-                        }
+                        updateTile(focusTile.x, focusTile.y);
                     }
                     break;
                 }
@@ -220,20 +211,10 @@ const Map = (props) => {
                         && props.selectedArea?.point?.x
                         && props.selectedArea?.point?.y
                     ) {
-                        updateSelectedMapTiles(
-                            props.selectedArea, 
-                            props.appState.mode === 'entity' ? 
-                            props.selectedEntity : 
-                            props.selectedTile
-                        );
+                        updateSelectedMapTiles(props.selectedArea);
                     }
                     else {
-                        if (props.appState.mode === 'entity') {
-                            updateChunkEntities(focusTile.x, focusTile.y, props.selectedEntity);
-                        }
-                        else { 
-                            updateMapTile(focusTile.x, focusTile.y, props.selectedTile);
-                        }
+                        updateTile(focusTile.x, focusTile.y);
                     }
                     event.preventDefault();
                     break;
@@ -267,8 +248,7 @@ const Map = (props) => {
                                             showEntities={props.showEntities} 
                                             position={{x: xIndex, y: yIndex}} 
                                             convertMapToGlobalPosition={convertMapToGlobalPosition} 
-                                            updateMapTile={updateMapTile} 
-                                            updateChunkEntities={updateChunkEntities}
+                                            updateTile={updateTile} 
                                             updateFocusTile={updateFocusTile} 
                                             focusTile={focusTile} 
                                             selectedTile={props.selectedTile} 

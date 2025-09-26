@@ -37,8 +37,7 @@ const Chunk = (props) => {
                                     showFocusTile={props.showFocusTile} 
                                     showEntities={props.showEntities}
                                     position={props.convertMapToGlobalPosition(props.position.x, props.position.y, xIndex, yIndex)} 
-                                    updateMapTile={props.updateMapTile} 
-                                    updateChunkEntities={props.updateChunkEntities} 
+                                    updateTile={props.updateTile} 
                                     updateFocusTile={props.updateFocusTile} 
                                     focusTile={props.focusTile} 
                                     selectedTile={props.selectedTile} 
