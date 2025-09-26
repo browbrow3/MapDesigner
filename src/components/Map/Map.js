@@ -31,7 +31,7 @@ const Map = (props) => {
         }
     },[props.mapRef, props.features.enableKeyboardControl])
 
-    const updateChunkEntities = (x, y) => {
+    const updateChunkEntities = (x, y, type = null) => {
         // console.log(`Map::updateChunkEntities called with arguments - x: ${x}, y: ${y}, type: ${type}`, 'Props:', props);
 
         if (props.selectedEntity === null) {
@@ -44,18 +44,18 @@ const Map = (props) => {
 
         // if entity not found, push entity to end if entity set.
         if (entityIndex === -1) {
-            if (props.selectedEntity !== -1) {
-                entities.push({type: props.selectedEntity, x: location.tileX, y: location.tileY});
+            if (type !== -1 && props.selectedEntity !== -1) {
+                entities.push({type: type === null ? props.selectedEntity : type, x: location.tileX, y: location.tileY});
             }
         }
         else {
             // if no new type is selected, remove the entity from the list.
-            if (props.selectedEntity === -1) {
+            if (type === -1 || props.selectedEntity === -1) {
                 entities = entities.filter(e => !(e.x === location.tileX && e.y === location.tileY));
             }
             // otherwise update the entity in the list.
             else {
-                entities[entityIndex] = {type: props.selectedEntity, x: location.tileX, y: location.tileY};
+                entities[entityIndex] = {type: type === null ? props.selectedEntity : type, x: location.tileX, y: location.tileY};
             }
         }
 
@@ -66,28 +66,28 @@ const Map = (props) => {
         props.setMap(newMap);
     }
     
-    const updateMapTile = (x, y) => {
-        // console.log(`Map::updateMapTile: x = ${x}, y = ${y}, newType = ${newType}`, 'Props:', props);
+    const updateMapTile = (x, y, type = null) => {
+        // console.log(`Map::updateMapTile: x = ${x}, y = ${y}, type = ${type}`, 'Props:', props);
         if (props.selectedTile === null) {
             return;
         }
         const position = convertGlobalToMapPosition(x, y);
         let newMap = [...props.map];
         // console.log(`Map::updateMapTile: position: `, position);
-        newMap[position.chunkY][position.chunkX].tiles[position.tileY][position.tileX] = props.selectedEntity;
+        newMap[position.chunkY][position.chunkX].tiles[position.tileY][position.tileX] = type === null ? props.selectedTile : type;
         props.setMap(newMap);
     }
 
-    const updateTile = (x, y) => {
+    const updateTile = (x, y, type = null) => {
         if (props.appState.mode === 'entity') {
-            updateChunkEntities(x, y, props.selectedEntity);
+            updateChunkEntities(x, y, type === null ? props.selectedEntity: type);
         }
         else {
-            updateMapTile(x, y);
+            updateMapTile(x, y, type === null ? props.selectedTile: type);
         }
     }
 
-    const updateSelectedMapTiles = (selectedArea) => {
+    const updateSelectedTiles = (selectedArea, type = null) => {
         // console.log(`Map::updateSelectedMapTiles: newType = ${newType}`, 'Props:', props);
         const start = {
             x: selectedArea.origin.x < selectedArea.point.x ? selectedArea.origin.x : selectedArea.point.x,
@@ -100,7 +100,7 @@ const Map = (props) => {
 
         for(let j = start.y; j <= end.y; j++) {
             for (let i = start.x; i <= end.x; i++) {
-                updateTile(i, j);
+                updateTile(i, j, type);
             }
         }
     }
@@ -195,7 +195,7 @@ const Map = (props) => {
                         && props.selectedArea?.point?.x
                         && props.selectedArea?.point?.y
                     ) {
-                        updateSelectedMapTiles(props.selectedArea);
+                        updateSelectedTiles(props.selectedArea);
                     }
                     else {
                         updateTile(focusTile.x, focusTile.y);
@@ -211,10 +211,46 @@ const Map = (props) => {
                         && props.selectedArea?.point?.x
                         && props.selectedArea?.point?.y
                     ) {
-                        updateSelectedMapTiles(props.selectedArea);
+                        updateSelectedTiles(props.selectedArea);
                     }
                     else {
                         updateTile(focusTile.x, focusTile.y);
+                    }
+                    event.preventDefault();
+                    break;
+                }
+                case "Backspace": {
+                    // console.log(`Backspace Pressed in Map - x = ${focusTile.x}, y = ${focusTile.y}`);
+                    if (
+                        (props.appState.heldKeys.shift || props.appState.heldKeys.ctrl)
+                        && props.selectedArea?.origin?.x
+                        && props.selectedArea?.origin?.y
+                        && props.selectedArea?.point?.x
+                        && props.selectedArea?.point?.y
+                    ) {
+                        updateSelectedTiles(props.selectedArea, -1);
+                    }
+                    else {
+
+                        updateTile(focusTile.x, focusTile.y, -1);
+                    }
+                    event.preventDefault();
+                    break;
+                }
+                case "Delete": {
+                    console.log(`Delete Pressed in Map - x = ${focusTile.x}, y = ${focusTile.y}`);
+                    if (
+                        (props.appState.heldKeys.shift || props.appState.heldKeys.ctrl)
+                        && props.selectedArea?.origin?.x
+                        && props.selectedArea?.origin?.y
+                        && props.selectedArea?.point?.x
+                        && props.selectedArea?.point?.y
+                    ) {
+                        updateSelectedTiles(props.selectedArea, -1);
+                    }
+                    else {
+
+                        updateTile(focusTile.x, focusTile.y, -1);
                     }
                     event.preventDefault();
                     break;
