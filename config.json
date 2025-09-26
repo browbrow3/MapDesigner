@@ -1,12 +1,13 @@
 {
     "entities": {
         "definitionsPath": "C:/Users/alexd/Documents/Programming/C++/Projects/GameEngine/GameEngine/definitions/EntityDefinitions.json",
-        "graphicsPath": "C:/Users/alexd/Documents/Programming/C++/Projects/GameEngine_GraphicsResources/sprites"
+        "graphicsPath": "C:/Users/alexd/Documents/Programming/C++/Projects/GameEngine_GraphicsResources/sprites",
+        "defaultSpritePath": "C:/Users/alexd/Documents/Programming/C++/Projects/GameEngine_GraphicsResources/sprites/8p/default-sprite.png"
     },
     "tiles": {
         "definitionsPath": "C:/Users/alexd/Documents/Programming/C++/Projects/GameEngine/GameEngine/definitions/TileDefinitions.json",
         "graphicsPath": "C:/Users/alexd/Documents/Programming/C++/Projects/GameEngine_GraphicsResources/tiles",
-        "defaultTilePath": "C:/Users/alexd/Documents/Programming/C++/Projects/GameEngine_GraphicsResources/tiles/8p/default_map_tile.png"
+        "defaultTilePath": "C:/Users/alexd/Documents/Programming/C++/Projects/GameEngine_GraphicsResources/tiles/8p/default-map-tile.png"
     },
     "map": {
         "path": "C:/Users/alexd/Documents/Programming/C++/Projects/GameEngine/GameEngine/definitions/Map.json"

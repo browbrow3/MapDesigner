@@ -1,0 +1,11 @@
+.selector {
+    display: flex;
+    
+    .title {
+        flex: 1;
+    }
+
+    .dropdown {
+        flex: 1;
+    }
+}

@@ -3,7 +3,7 @@ import './Tile.css';
 
 const Tile = (props) => {
     // console.log("Tile Props:", props);
-    
+
     const style = {};
 
     if (props.hasOwnProperty('position')) {
@@ -61,9 +61,7 @@ const Tile = (props) => {
     const handleClick = () => {
         // console.log(`Tile props (on handle click): `, props);
         if (props.hasOwnProperty('position')) {
-            if (props.selectedTile != null || props.selectedTile > 0) {
-                props.updateMapTile(props.position.x, props.position.y, props.selectedTile);
-            }
+            props.updateTile(props.position.x, props.position.y);
             props.updateFocusTile(props.position.x, props.position.y);
             props.updateAreaSelect(props.position);
         }
@@ -71,7 +69,8 @@ const Tile = (props) => {
 
     return (
         <div id={getId()} class="tile" style={style} onClick={handleClick}>
-            <img alt={`Tile ${props.definition.type} at size ${props.size}p`} src={props.definition.type === -1 ? "resources/tiles/default-tile.png" : `resources/tiles/${props.size}p/tile_${props.definition.type}.png`}/>
+            <img class="tile-image" alt={`Tile ${props.definition.type} at tile resolution ${props.tileResolution}p`} src={props.definition.type === -1 ? "resources/tiles/default-tile.png" : `resources/tiles/${props.tileResolution}p/tile_${props.definition.type}.png`}/>
+            {(props.showEntities && props.entity) ? <img class="entity-image" alt={`Entity ${props.entity.type} at resolution ${props.entityResolution}p`} src={props.entity.type === -1 ? "resources/entities/default-entity.png" : `resources/entities/${props.entityResolution}p/sprite_${props.entity.type}_0_1_0.png`}/> : null}
         </div>
     );
 }
